@@ -1,1 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden Grow 🌱</title>
 
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase configuration -->
+    <script src="js/config.js"></script>
+</head>
+
+<body>
+
+    <div id="app">
+
+        <!-- Loading -->
+        <section id="loading-screen">
+            <h1>🌱 Garden Grow</h1>
+            <p>Loading...</p>
+        </section>
+
+        <!-- Authentication -->
+        <section id="auth-screen" hidden>
+            <div class="auth-box">
+                <h1>🌱 Garden Grow</h1>
+
+                <div id="login-form">
+                    <h2>Login</h2>
+
+                    <input
+                        id="login-email"
+                        type="email"
+                        placeholder="Email"
+                        autocomplete="email"
+                    >
+
+                    <input
+                        id="login-password"
+                        type="password"
+                        placeholder="Password"
+                        autocomplete="current-password"
+                    >
+
+                    <button id="login-button">
+                        Login
+                    </button>
+
+                    <p>
+                        Don't have an account?
+                        <button id="show-signup-button">
+                            Sign Up
+                        </button>
+                    </p>
+                </div>
+
+                <div id="signup-form" hidden>
+                    <h2>Create Account</h2>
+
+                    <input
+                        id="signup-email"
+                        type="email"
+                        placeholder="Email"
+                        autocomplete="email"
+                    >
+
+                    <input
+                        id="signup-password"
+                        type="password"
+                        placeholder="Password"
+                        autocomplete="new-password"
+                    >
+
+                    <button id="signup-button">
+                        Sign Up
+                    </button>
+
+                    <p>
+                        Already have an account?
+                        <button id="show-login-button">
+                            Login
+                        </button>
+                    </p>
+                </div>
+
+                <p id="auth-message"></p>
+            </div>
+        </section>
+
+        <!-- GAME -->
+        <section id="game-screen" hidden>
+
+            <header class="game-header">
+                <h1>🌱 Garden Grow</h1>
+
+                <div class="player-info">
+                    <span>💰 <b id="currency">0</b></span>
+                    <span>⭐ Lv. <b id="level">1</b></span>
+                    <span>💧 <b id="water">10</b></span>
+                </div>
+
+                <button id="logout-button">
+                    Logout
+                </button>
+            </header>
+
+            <main>
+
+                <!-- Garden -->
+                <section id="garden-section">
+                    <h2>🌾 My Garden</h2>
+
+                    <div id="garden">
+                        <!-- Garden plots will be created by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Seeds -->
+                <section id="seed-section">
+                    <h2>🌱 Seeds</h2>
+
+                    <div id="seed-bar">
+                        <!-- Seeds will be created by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Tools -->
+                <section id="tools-section">
+                    <button id="plant-tool">🌱 Plant</button>
+                    <button id="water-tool">💧 Water</button>
+                    <button id="harvest-tool">🌾 Harvest</button>
+                </section>
+
+            </main>
+
+        </section>
+
+    </div>
+
+    <!-- Authentication -->
+    <script src="js/auth.js"></script>
+
+    <!-- Game -->
+    <script src="js/gameCore.js"></script>
+    <script src="js/plants.js"></script>
+    <script src="js/economy.js"></script>
+    <script src="js/quests.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/cloudSave.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+      </html>
