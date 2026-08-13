@@ -1,0 +1,407 @@
+// ================================
+// UI SYSTEM
+// ================================
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+
+    if (!toast) {
+        console.log(message);
+        return;
+    }
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+}
+
+
+// ================================
+// UPDATE CURRENCY UI
+// ================================
+
+function updateCurrencyUI() {
+    if (!window.gameState) return;
+
+    const currency =
+        Number(window.gameState.currency) || 0;
+
+    const elements = [
+        document.getElementById("sheckles"),
+        document.getElementById("currency"),
+        document.getElementById("money")
+    ];
+
+    elements.forEach(element => {
+        if (element) {
+            element.textContent = currency;
+        }
+    });
+}
+
+
+// ================================
+// UPDATE WATER UI
+// ================================
+
+function updateWaterUI() {
+    if (!window.gameState) return;
+
+    const water =
+        Number(window.gameState.water) || 0;
+
+    const maxWater =
+        Number(window.gameState.maxWater) || 10;
+
+    const waterText =
+        `${water}/${maxWater}`;
+
+    const elements = [
+        document.getElementById("waterDisplay"),
+        document.getElementById("waterAmount")
+    ];
+
+    elements.forEach(element => {
+        if (element) {
+            element.textContent = waterText;
+        }
+    });
+}
+
+
+// ================================
+// UPDATE LEVEL UI
+// ================================
+
+function updateLevelUI() {
+    if (!window.gameState) return;
+
+    const level =
+        Number(window.gameState.level) || 1;
+
+    const farmLevel =
+        Number(window.gameState.farmLevel) || 1;
+
+    const levelElement =
+        document.getElementById("level");
+
+    const farmLevelElement =
+        document.getElementById("farmLevel");
+
+    if (levelElement) {
+        levelElement.textContent = level;
+    }
+
+    if (farmLevelElement) {
+        farmLevelElement.textContent = farmLevel;
+    }
+}
+
+
+// ================================
+// UPDATE XP UI
+// ================================
+
+function updateXPUI() {
+    if (!window.gameState) return;
+
+    const xp =
+        Number(window.gameState.xp) || 0;
+
+    const needed =
+        Number(window.gameState.xpNeeded) || 100;
+
+    const percentage =
+        Math.min(
+            100,
+            Math.max(0, (xp / needed) * 100)
+        );
+
+    const fill =
+        document.getElementById("xpFill");
+
+    const text =
+        document.getElementById("xpText");
+
+    const neededText =
+        document.getElementById("xpNeeded");
+
+    if (fill) {
+        fill.style.width =
+            `${percentage}%`;
+    }
+
+    if (text) {
+        text.textContent = xp;
+    }
+
+    if (neededText) {
+        neededText.textContent = needed;
+    }
+}
+
+
+// ================================
+// UPDATE TIME UI
+// ================================
+
+function updateTimeUI() {
+    const indicator =
+        document.getElementById("dayIndicator");
+
+    const display =
+        document.getElementById("timeDisplay");
+
+    const isNight =
+        document.body.classList.contains("night");
+
+    if (isNight) {
+        if (indicator) {
+            indicator.textContent = "🌙 Night";
+            indicator.className =
+                "day-indicator night";
+        }
+
+        if (display) {
+            display.textContent = "🌙 Night";
+        }
+    } else {
+        if (indicator) {
+            indicator.textContent = "☀️ Day";
+            indicator.className =
+                "day-indicator day";
+        }
+
+        if (display) {
+            display.textContent = "☀️ Day";
+        }
+    }
+}
+
+
+// ================================
+// UPDATE FARM UI
+// ================================
+
+function updateFarmUI() {
+    if (typeof renderFarm === "function") {
+        renderFarm();
+    }
+
+    if (typeof renderInventory === "function") {
+        renderInventory();
+    }
+
+    updateCurrencyUI();
+    updateWaterUI();
+    updateLevelUI();
+    updateXPUI();
+}
+
+
+// ================================
+// SWITCH TABS
+// ================================
+
+function switchTab(tabName) {
+    const contents =
+        document.querySelectorAll(
+            ".tab-content"
+        );
+
+    const buttons =
+        document.querySelectorAll(
+            ".tab-btn"
+        );
+
+    contents.forEach(content => {
+        content.classList.remove("active");
+    });
+
+    buttons.forEach(button => {
+        button.classList.remove("active");
+    });
+
+    const selectedContent =
+        document.getElementById(
+            `tab-${tabName}`
+        );
+
+    if (selectedContent) {
+        selectedContent.classList.add("active");
+    }
+
+    buttons.forEach(button => {
+        if (
+            button.getAttribute("onclick") ===
+            `switchTab('${tabName}')`
+        ) {
+            button.classList.add("active");
+        }
+    });
+}
+
+
+// ================================
+// WATER MODE
+// ================================
+
+function toggleWaterMode() {
+    if (!window.gameState) return;
+
+    if (
+        window.gameState.selectedTool ===
+        "water"
+    ) {
+        window.gameState.selectedTool =
+            "plant";
+    } else {
+        window.gameState.selectedTool =
+            "water";
+    }
+
+    updateToolUI();
+}
+
+
+// ================================
+// UPDATE TOOL UI
+// ================================
+
+function updateToolUI() {
+    const display =
+        document.getElementById(
+            "toolDisplay"
+        );
+
+    const button =
+        document.getElementById(
+            "waterBtn"
+        );
+
+    const tool =
+        window.gameState?.selectedTool ||
+        "plant";
+
+    if (tool === "water") {
+        if (display) {
+            display.textContent =
+                "💧 Water";
+        }
+
+        if (button) {
+            button.textContent =
+                "🪴 Plant Mode";
+        }
+    } else {
+        if (display) {
+            display.textContent =
+                "🪴 Plant";
+        }
+
+        if (button) {
+            button.textContent =
+                "💧 Water Mode";
+        }
+    }
+}
+
+
+// ================================
+// SELECT PLANT
+// ================================
+
+function selectPlant(plantId) {
+    if (!window.gameState) return;
+
+    window.gameState.selectedPlant =
+        plantId;
+
+    const plant =
+        typeof getPlant === "function"
+            ? getPlant(plantId)
+            : null;
+
+    const display =
+        document.getElementById(
+            "selectedDisplay"
+        );
+
+    if (display && plant) {
+        display.textContent =
+            `${plant.emoji || "🌱"} ${plant.name}`;
+    }
+
+    updateShopSelection();
+}
+
+
+// ================================
+// UPDATE SHOP SELECTION
+// ================================
+
+function updateShopSelection() {
+    const selected =
+        window.gameState?.selectedPlant;
+
+    document
+        .querySelectorAll(".shop-item")
+        .forEach(item => {
+            item.classList.remove(
+                "seed-active"
+            );
+        });
+
+    if (!selected) return;
+
+    document
+        .querySelectorAll(
+            `[data-plant-id="${selected}"]`
+        )
+        .forEach(item => {
+            item.classList.add(
+                "seed-active"
+            );
+        });
+}
+
+
+// ================================
+// UPDATE ALL UI
+// ================================
+
+function updateUI() {
+    updateFarmUI();
+    updateTimeUI();
+    updateToolUI();
+}
+
+
+// ================================
+// UI LOOP
+// ================================
+
+function startUILoop() {
+    updateUI();
+
+    setInterval(() => {
+        updateUI();
+    }, 1000);
+}
+
+
+// ================================
+// INITIALIZE UI
+// ================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        startUILoop();
+    }
+);
