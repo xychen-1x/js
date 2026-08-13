@@ -190,7 +190,7 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
     if (session && session.user) {
         currentUser = session.user;
     } else {
-        currentUser = null;
+currentUser = null;
     }
 });
 
@@ -198,4 +198,74 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 
 document.addEventListener("DOMContentLoaded", () => {
     checkAuthSession();
+});
+// ================================
+// AUTHENTICATION SYSTEM
+// ================================
+
+// SIGN UP
+async function signUp(email, password) {
+    const { data, error } = await supabaseClient.auth.signUp({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        console.error("Sign up error:", error.message);
+        alert(error.message);
+        return false;
+    }
+
+    alert("Account created! Please check your email to confirm your account.");
+    return true;
+}
+
+// LOGIN
+async function login(email, password) {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        console.error("Login error:", error.message);
+        alert(error.message);
+        return false;
+    }
+
+    console.log("Logged in:", data.user.email);
+    return true;
+}
+
+// LOGOUT
+async function logout() {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+        console.error("Logout error:", error.message);
+        return false;
+    }
+
+    console.log("Logged out.");
+    return true;
+}
+
+// GET CURRENT USER
+async function getCurrentUser() {
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    return user;
+}
+
+// LISTEN FOR AUTH CHANGES
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    console.log("Auth event:", event);
+
+    if (session) {
+        console.log("User logged in:", session.user.email);
+    } else {
+        console.log("No user logged in.");
+    }
 });
