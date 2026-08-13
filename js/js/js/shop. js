@@ -1,0 +1,340 @@
+// ================================
+// SHOP SYSTEM
+// ================================
+
+let seedShopItems = [];
+let gearShopItems = [];
+
+
+// ================================
+// GENERATE SEED SHOP
+// ================================
+
+function generateSeedShop() {
+    if (typeof PLANTS === "undefined") {
+        console.error("PLANTS data is not available.");
+        return;
+    }
+
+    seedShopItems = Object.values(PLANTS).map(plant => ({
+        id: plant.id,
+        name: plant.name,
+        emoji: plant.emoji,
+        price: plant.seedPrice,
+        type: "seed"
+    }));
+
+    renderSeedShop();
+}
+
+
+// ================================
+// BUY SEED FROM SHOP
+// ================================
+
+function buySeedFromShop(plantId) {
+    const plant =
+        typeof getPlant === "function"
+            ? getPlant(plantId)
+            : null;
+
+    if (!plant) {
+        console.error("Unknown plant:", plantId);
+        return false;
+    }
+
+    if (typeof buySeed === "function") {
+        const success = buySeed(plantId, 1);
+
+        if (!success) {
+            if (typeof showToast === "function") {
+                showToast("❌ Not enough Sh!");
+            }
+
+            return false;
+        }
+    }
+
+    if (typeof renderInventory === "function") {
+        renderInventory();
+    }
+
+    if (typeof renderSeedShop === "function") {
+        renderSeedShop();
+    }
+
+    if (typeof showToast === "function") {
+        showToast(`🌱 Bought ${plant.name} seed!`);
+    }
+
+    return true;
+}
+
+
+// ================================
+// RENDER SEED SHOP
+// ================================
+
+function renderSeedShop() {
+    const container =
+        document.getElementById("seedshop");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (seedShopItems.length === 0) {
+        container.innerHTML = `
+            <div class="muted">
+                🌱 No seeds available.
+            </div>
+        `;
+
+        return;
+    }
+
+    seedShopItems.forEach(item => {
+        const element =
+            document.createElement("div");
+
+        element.className = "shop-item";
+
+        element.innerHTML = `
+            <span class="emoji">
+                ${item.emoji || "🌱"}
+            </span>
+
+            <div class="name">
+                ${item.name}
+            </div>
+
+            <div class="rarity rarity-${getPlantRarity(item.id)}">
+                ${getPlantRarity(item.id)}
+            </div>
+
+            <div class="price">
+                💰 ${item.price} Sh
+            </div>
+
+            <button
+                class="btn-primary btn-sm"
+                style="margin-top:6px"
+            >
+                Buy
+            </button>
+        `;
+
+        const button =
+            element.querySelector("button");
+
+        button.addEventListener(
+            "click",
+            event => {
+                event.stopPropagation();
+                buySeedFromShop(item.id);
+            }
+        );
+
+        container.appendChild(element);
+    });
+}
+
+
+// ================================
+// GET PLANT RARITY
+// ================================
+
+function getPlantRarity(plantId) {
+    const plant =
+        typeof getPlant === "function"
+            ? getPlant(plantId)
+            : null;
+
+    return plant?.rarity || "Common";
+}
+
+
+// ================================
+// GEAR SHOP
+// ================================
+
+function initializeGearShop() {
+    gearShopItems = [
+        {
+            id: "basic_watering_can",
+            name: "Basic Watering Can",
+            emoji: "💧",
+            price: 100
+        },
+        {
+            id: "garden_shovel",
+            name: "Garden Shovel",
+            emoji: "🪏",
+            price: 150
+        }
+    ];
+
+    renderGearShop();
+}
+
+
+// ================================
+// BUY GEAR
+// ================================
+
+function buyGear(gearId) {
+    const gear =
+        gearShopItems.find(
+            item => item.id === gearId
+        );
+
+    if (!gear) {
+        return false;
+    }
+
+    if (
+        typeof spendCurrency !== "function"
+    ) {
+        console.error(
+            "spendCurrency is not available."
+        );
+
+        return false;
+    }
+
+    if (!spendCurrency(gear.price)) {
+        if (typeof showToast === "function") {
+            showToast("❌ Not enough Sh!");
+        }
+
+        return false;
+    }
+
+    if (typeof addGear === "function") {
+        addGear(gear.id, 1);
+    }
+
+    if (typeof renderInventory === "function") {
+        renderInventory();
+    }
+
+    if (typeof showToast === "function") {
+        showToast(`⚙️ Bought ${gear.name}!`);
+    }
+
+    return true;
+}
+
+
+// ================================
+// RENDER GEAR SHOP
+// ================================
+
+function renderGearShop() {
+    const container =
+        document.getElementById("gearshop");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    gearShopItems.forEach(item => {
+        const element =
+            document.createElement("div");
+
+        element.className = "shop-item";
+
+        element.innerHTML = `
+            <span class="emoji">
+                ${item.emoji}
+            </span>
+
+            <div class="name">
+                ${item.name}
+            </div>
+
+            <div class="price">
+                💰 ${item.price} Sh
+            </div>
+
+            <button
+                class="btn-primary btn-sm"
+                style="margin-top:6px"
+            >
+                Buy
+            </button>
+        `;
+
+        const button =
+            element.querySelector("button");
+
+        button.addEventListener(
+            "click",
+            event => {
+                event.stopPropagation();
+                buyGear(item.id);
+            }
+        );
+
+        container.appendChild(element);
+    });
+}
+
+
+// ================================
+// RESTOCK
+// ================================
+
+function restockShop() {
+    generateSeedShop();
+    initializeGearShop();
+
+    if (typeof showToast === "function") {
+        showToast("🛒 Shop restocked!");
+    }
+}
+
+
+// ================================
+// SHOP TIMER
+// ================================
+
+let shopRestockTimer = 20;
+
+function updateShopTimer() {
+    const display =
+        document.getElementById("scd");
+
+    if (display) {
+        display.textContent =
+            `${shopRestockTimer}s`;
+    }
+
+    shopRestockTimer--;
+
+    if (shopRestockTimer <= 0) {
+        shopRestockTimer = 20;
+        restockShop();
+    }
+}
+
+
+// ================================
+// INITIALIZE SHOP
+// ================================
+
+function initializeShop() {
+    generateSeedShop();
+    initializeGearShop();
+
+    setInterval(
+        updateShopTimer,
+        1000
+    );
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeShop
+);
