@@ -1,0 +1,223 @@
+// ================================
+// FARM SYSTEM
+// ================================
+
+const FARM_SIZE = 16;
+
+
+// ================================
+// CREATE FARM
+// ================================
+
+function initializeFarmSystem() {
+    if (!window.gameState) {
+        console.error("Game state is not initialized.");
+        return;
+    }
+
+    if (!Array.isArray(window.gameState.farm)) {
+        window.gameState.farm = [];
+    }
+
+    while (window.gameState.farm.length < FARM_SIZE) {
+        window.gameState.farm.push(null);
+    }
+
+    if (window.gameState.farm.length > FARM_SIZE) {
+        window.gameState.farm =
+            window.gameState.farm.slice(0, FARM_SIZE);
+    }
+
+    renderFarm();
+}
+
+
+// ================================
+// GET PLOT
+// ================================
+
+function getFarmPlot(index) {
+    if (!window.gameState?.farm) {
+        return null;
+    }
+
+    return window.gameState.farm[index] || null;
+}
+
+
+// ================================
+// PLANT SEED
+// ================================
+
+function plantSeed(plotIndex, plantId) {
+    if (!window.gameState) {
+        return false;
+    }
+
+    if (
+        plotIndex < 0 ||
+        plotIndex >= FARM_SIZE
+    ) {
+        return false;
+    }
+
+    const plot =
+        window.gameState.farm[plotIndex];
+
+    if (plot) {
+        if (typeof showToast === "function") {
+            showToast("🌱 This plot is already occupied.");
+        }
+
+        return false;
+    }
+
+    const plant =
+        typeof getPlant === "function"
+            ? getPlant(plantId)
+            : null;
+
+    if (!plant) {
+        console.error(
+            "Unknown plant:",
+            plantId
+        );
+
+        return false;
+    }
+
+    if (
+        typeof useSeed === "function" &&
+        !useSeed(plantId)
+    ) {
+        if (typeof showToast === "function") {
+            showToast("❌ You don't have this seed.");
+        }
+
+        return false;
+    }
+
+    window.gameState.farm[plotIndex] = {
+        plantId: plantId,
+
+        plantedAt: Date.now(),
+
+        growth: 0,
+
+        watered: false,
+
+        ready: false,
+
+        wilted: false
+    };
+
+    if (typeof questPlant === "function") {
+        questPlant(1);
+    }
+
+    if (typeof addXP === "function") {
+        addXP(5);
+    }
+
+    if (typeof plantEffect === "function") {
+        const element =
+            document.querySelector(
+                `[data-plot-index="${plotIndex}"]`
+            );
+
+        if (element) {
+            plantEffect(element);
+        }
+    }
+
+    renderFarm();
+
+    if (typeof addLog === "function") {
+        addLog(`🌱 Planted ${plant.name}.`);
+    }
+
+    return true;
+}
+
+
+// ================================
+// WATER PLANT
+// ================================
+
+function waterPlant(plotIndex) {
+    if (!window.gameState) {
+        return false;
+    }
+
+    const plot =
+        window.gameState.farm[plotIndex];
+
+    if (!plot) {
+        return false;
+    }
+
+    if (plot.ready) {
+        if (typeof showToast === "function") {
+            showToast("🌾 This crop is ready to harvest!");
+        }
+
+        return false;
+    }
+
+    if (plot.wilted) {
+        if (typeof showToast === "function") {
+            showToast("🥀 This plant has wilted.");
+        }
+
+        return false;
+    }
+
+    if (plot.watered) {
+        if (typeof showToast === "function") {
+            showToast("💧 This plant is already watered.");
+        }
+
+        return false;
+    }
+
+    if (
+        typeof useWater === "function" &&
+        !useWater(1)
+    ) {
+        if (typeof showToast === "function") {
+            showToast("💧 Not enough water.");
+        }
+
+        return false;
+    }
+
+    plot.watered = true;
+
+    if (typeof questWater === "function") {
+        questWater(1);
+    }
+
+    if (typeof addXP === "function") {
+        addXP(3);
+    }
+
+    if (typeof waterEffect === "function") {
+        const element =
+            document.querySelector(
+                `[data-plot-index="${plotIndex}"]`
+            );
+
+        if (element) {
+            waterEffect(element);
+        }
+    }
+
+    renderFarm();
+
+    return true;
+}
+
+
+// ================================
+// HARVEST PLANT
+// ================================
